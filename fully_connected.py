@@ -28,6 +28,8 @@ import tensorflow as tf
 from input_pipeline import *
 import mnist
 
+from IPython import embed # used for interactive debugging
+
 
 # Basic model parameters as external flags.
 flags = tf.app.flags
@@ -43,34 +45,25 @@ flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                      'for unit testing.')
 
 
-def do_eval(sess,
-            eval_correct,
-            images_placeholder,
-            labels_placeholder,
-            data_set):
+def do_eval(sess, eval_correct, feed_dict, eval_data_size):
   """Runs one evaluation against the full epoch of data.
   Args:
     sess: The session in which the model has been trained.
-    eval_correct: The Tensor that returns the number of correct predictions.
-    images_placeholder: The images placeholder.
-    labels_placeholder: The labels placeholder.
-    data_set: The set of images and labels to evaluate, from
-      input_data.read_data_sets().
+    eval_correct: The op that returns the number of correct predictions.
   """
-  # And run one epoch of eval.
+  start_time = time.time()
   true_count = 0  # Counts the number of correct predictions.
+  
   # BUG! (and I don't bother to fix): due to integer division,  the final batch that contains fewer examples 
   # than the batch size will be just discarded and not used in evaluation. To fix this we need tf.train.batch(allow_smaller_final_batch=True), but it only available in TensorFlow 0.10
-  steps_per_epoch = data_set.num_examples // FLAGS.batch_size
+  steps_per_epoch = eval_data_size // FLAGS.batch_size
   num_examples = steps_per_epoch * FLAGS.batch_size
   for step in xrange(steps_per_epoch):
-    feed_dict = fill_feed_dict(data_set,
-                               images_placeholder,
-                               labels_placeholder)
     true_count += sess.run(eval_correct, feed_dict=feed_dict)
   precision = true_count / num_examples
-  print('  Num examples: %d  Num correct: %d  Precision @ 1: %0.04f' %
-        (num_examples, true_count, precision))
+  duration = time.time() - start_time
+  print('  Num examples: %d  Num correct: %d  Precision @ 1: %0.04f Time: %.3f sec' %
+        (num_examples, true_count, precision, duration))
 
 
 def run_training():
@@ -119,9 +112,10 @@ def run_training():
     tf.train.start_queue_runners(sess=sess)
 
     # Start the training loop.
+    duration = 0.0
     for step in xrange(FLAGS.max_steps):
-      start_time = time.time()
       
+      start_time = time.time()
       # Fill a feed dictionary with the actual set of images and labels
       # for this particular training step.
       train_feed_dict = {
@@ -135,13 +129,13 @@ def run_training():
       # in the list passed to sess.run() and the value tensors will be
       # returned in the tuple from the call.
       _, loss_value = sess.run([train_op, loss], feed_dict=train_feed_dict)
-
-      duration = time.time() - start_time
+      duration += time.time() - start_time
 
       # Write the summaries and print an overview fairly often.
       if step % 100 == 0:
         # Print status to stdout.
-        print('Step %d: loss = %.2f (%.3f sec per step)' % (step, loss_value, duration))
+        print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_value, duration))
+        duration = 0.0
         # Update the events file.
         summary_str = sess.run(summary_op, feed_dict=train_feed_dict)
         summary_writer.add_summary(summary_str, step)
@@ -151,27 +145,20 @@ def run_training():
       if (step + 1) % 100 == 0 or (step + 1) == FLAGS.max_steps:
         checkpoint_file = os.path.join(FLAGS.train_dir, 'checkpoint')
         saver.save(sess, checkpoint_file, global_step=step)
-        # # Evaluate against the training set.
-        # print('Training Data Eval:')
-        # do_eval(sess,
-                # eval_correct,
-                # images_placeholder,
-                # labels_placeholder,
-                # data_sets.train)
-        # # Evaluate against the validation set.
-        # print('Validation Data Eval:')
-        # do_eval(sess,
-                # eval_correct,
-                # images_placeholder,
-                # labels_placeholder,
-                # data_sets.validation)
-        # # Evaluate against the test set.
-        # print('Test Data Eval:')
-        # do_eval(sess,
-                # eval_correct,
-                # images_placeholder,
-                # labels_placeholder,
-                # data_sets.test)
+        
+        # Evaluate against the training set.
+        print('Training Data Eval:')
+        do_eval(sess, eval_correct, feed_dict = {
+                    images_placeholder: train_image_batch.eval(session=sess),
+                    labels_placeholder: train_label_batch.eval(session=sess)
+                }, eval_data_size = TRAIN_SIZE)
+        # Evaluate against the validation set.
+        print('Validation Data Eval:')
+        do_eval(sess, eval_correct, feed_dict = {
+                    images_placeholder: val_image_batch.eval(session=sess),
+                    labels_placeholder: val_label_batch.eval(session=sess)
+                }, eval_data_size = VAL_SIZE)
+        print('\n')
 
 
 def main(_):
