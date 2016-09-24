@@ -43,25 +43,6 @@ flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                      'for unit testing.')
 
 
-def placeholder_inputs(batch_size):
-  """Generate placeholder variables to represent the input tensors.
-  These placeholders are used as inputs by the rest of the model building
-  code and will be fed from the downloaded data in the .run() loop, below.
-  Args:
-    batch_size: The batch size will be baked into both placeholders.
-  Returns:
-    images_placeholder: Images placeholder.
-    labels_placeholder: Labels placeholder.
-  """
-  # Note that the shapes of the placeholders match the shapes of the full
-  # image and label tensors, except the first dimension is now batch_size
-  # rather than the full size of the train or test data sets.
-  images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
-                                                         SHAPE))
-  labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
-  return images_placeholder, labels_placeholder
-
-
 def do_eval(sess,
             eval_correct,
             images_placeholder,
@@ -78,6 +59,8 @@ def do_eval(sess,
   """
   # And run one epoch of eval.
   true_count = 0  # Counts the number of correct predictions.
+  # BUG! (and I don't bother to fix): due to integer division,  the final batch that contains fewer examples 
+  # than the batch size will be just discarded and not used in evaluation. To fix this we need tf.train.batch(allow_smaller_final_batch=True), but it only available in TensorFlow 0.10
   steps_per_epoch = data_set.num_examples // FLAGS.batch_size
   num_examples = steps_per_epoch * FLAGS.batch_size
   for step in xrange(steps_per_epoch):
@@ -97,7 +80,8 @@ def run_training():
   #with tf.Graph().as_default():
   if True:
     # Generate placeholders for the images and labels.
-    images_placeholder, labels_placeholder = train_image_batch, train_label_batch
+    images_placeholder = tf.placeholder(tf.float32, shape=(FLAGS.batch_size,SHAPE))
+    labels_placeholder = tf.placeholder(tf.int32, shape=(FLAGS.batch_size))
 
     # Build a Graph that computes predictions from the inference model.
     logits = mnist.inference(images_placeholder,
@@ -137,13 +121,20 @@ def run_training():
     # Start the training loop.
     for step in xrange(FLAGS.max_steps):
       start_time = time.time()
-
+      
+      # Fill a feed dictionary with the actual set of images and labels
+      # for this particular training step.
+      train_feed_dict = {
+                images_placeholder: train_image_batch.eval(session=sess),
+                labels_placeholder: train_label_batch.eval(session=sess)
+      }
+                                 
       # Run one step of the model.  The return values are the activations
       # from the `train_op` (which is discarded) and the `loss` Op.  To
       # inspect the values of your Ops or variables, you may include them
       # in the list passed to sess.run() and the value tensors will be
       # returned in the tuple from the call.
-      _, loss_value = sess.run([train_op, loss])
+      _, loss_value = sess.run([train_op, loss], feed_dict=train_feed_dict)
 
       duration = time.time() - start_time
 
@@ -152,12 +143,12 @@ def run_training():
         # Print status to stdout.
         print('Step %d: loss = %.2f (%.3f sec per step)' % (step, loss_value, duration))
         # Update the events file.
-        summary_str = sess.run(summary_op)
+        summary_str = sess.run(summary_op, feed_dict=train_feed_dict)
         summary_writer.add_summary(summary_str, step)
         summary_writer.flush()
 
       # Save a checkpoint and evaluate the model periodically.
-      if (step + 1) % 1000 == 0 or (step + 1) == FLAGS.max_steps:
+      if (step + 1) % 100 == 0 or (step + 1) == FLAGS.max_steps:
         checkpoint_file = os.path.join(FLAGS.train_dir, 'checkpoint')
         saver.save(sess, checkpoint_file, global_step=step)
         # # Evaluate against the training set.
