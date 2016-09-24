@@ -43,6 +43,7 @@ flags.DEFINE_integer('batch_size', BATCH_SIZE, 'Batch size.  '
 flags.DEFINE_string('train_dir', 'data', 'Directory to put the training data.')
 flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                      'for unit testing.')
+flags.DEFINE_float('eps', 1e-8, 'for ADAM optimizer: a small constant for numerical stability.')
 
 
 def do_eval(sess, eval_correct, feed_dict, eval_data_size):
@@ -85,7 +86,7 @@ def run_training():
     loss = mnist.loss(logits, labels_placeholder)
 
     # Add to the Graph the Ops that calculate and apply gradients.
-    train_op = mnist.training(loss, FLAGS.learning_rate)
+    train_op = mnist.training(loss, FLAGS.learning_rate, FLAGS.eps)
 
     # Add the Op to compare the logits to the labels during evaluation.
     eval_correct = mnist.evaluation(logits, labels_placeholder)

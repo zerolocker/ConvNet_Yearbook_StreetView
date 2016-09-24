@@ -94,7 +94,7 @@ def loss(logits, labels):
   return loss
 
 
-def training(loss, learning_rate):
+def training(loss, learning_rate, eps):
   """Sets up the training Ops.
   Creates a summarizer to track the loss over time in TensorBoard.
   Creates an optimizer and applies the gradients to all trainable variables.
@@ -109,7 +109,7 @@ def training(loss, learning_rate):
   # Add a scalar summary for the snapshot loss.
   tf.scalar_summary(loss.op.name, loss)
   # Create the gradient descent optimizer with the given learning rate.
-  optimizer = tf.train.AdamOptimizer()
+  optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, epsilon=eps)
   # Create a variable to track the global step.
   global_step = tf.Variable(0, name='global_step', trainable=False)
   # Use the optimizer to apply the gradients that minimize the loss
