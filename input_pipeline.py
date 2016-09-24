@@ -75,11 +75,11 @@ LABELS_FILE_TRAIN = './smallYearbook/label.train.txt'
 LABELS_FILE_VAL = './smallYearbook/label.val.txt'
 BATCH_SIZE = 100
 SHAPE= (171*186*3) # [height, width] This cannot read from file and needs to be provided
-i2label = lambda i: i+1902;
-label2i = lambda i: i-1902;
+i2label = lambda i: i+1905;
+label2i = lambda i: i-1905;
 
 train_image_batch, train_label_batch, TRAIN_SIZE = main(LABELS_FILE_TRAIN, BATCH_SIZE, num_epochs=None)
-val_image_batch, val_label_batch, VAL_SIZE = main(LABELS_FILE_VAL, BATCH_SIZE, num_epochs=1)
+val_image_batch, val_label_batch, VAL_SIZE = main(LABELS_FILE_VAL, BATCH_SIZE, num_epochs=None)
 printdebug("TRAIN_SIZE: %d VAL_SIZE: %d BATCH_SIZE: %d " % (TRAIN_SIZE, VAL_SIZE, BATCH_SIZE))
 
 
