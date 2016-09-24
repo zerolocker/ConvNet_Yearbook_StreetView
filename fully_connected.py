@@ -44,9 +44,12 @@ flags.DEFINE_string('train_dir', 'data', 'Directory to put the training data.')
 flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                      'for unit testing.')
 flags.DEFINE_float('eps', 1e-8, 'for ADAM optimizer: a small constant for numerical stability.')
+printdebug('learning_rate: %.0e  eps: %.0e' % (FLAGS.learning_rate, FLAGS.eps))
 
 
-def do_eval(sess, eval_correct, feed_dict, eval_data_size):
+def do_eval(sess, eval_correct, eval_data_size, 
+            images_placeholder, labels_placeholder, 
+            image_batch, label_batch):
   """Runs one evaluation against the full epoch of data.
   Args:
     sess: The session in which the model has been trained.
@@ -60,7 +63,10 @@ def do_eval(sess, eval_correct, feed_dict, eval_data_size):
   steps_per_epoch = eval_data_size // FLAGS.batch_size
   num_examples = steps_per_epoch * FLAGS.batch_size
   for step in xrange(steps_per_epoch):
-    true_count += sess.run(eval_correct, feed_dict=feed_dict)
+    true_count += sess.run(eval_correct, feed_dict={
+        images_placeholder: image_batch.eval(session=sess),
+        labels_placeholder: label_batch.eval(session=sess),
+    })
   precision = true_count / num_examples
   duration = time.time() - start_time
   print('  Num examples: %d  Num correct: %d  Precision @ 1: %0.04f Time: %.3f sec' %
@@ -143,22 +149,20 @@ def run_training():
         summary_writer.flush()
 
       # Save a checkpoint and evaluate the model periodically.
-      if (step + 1) % 100 == 0 or (step + 1) == FLAGS.max_steps:
+      if (step + 1) % 1000 == 0 or (step + 1) == FLAGS.max_steps:
         checkpoint_file = os.path.join(FLAGS.train_dir, 'checkpoint')
         saver.save(sess, checkpoint_file, global_step=step)
         
         # Evaluate against the training set.
         print('Training Data Eval:')
-        do_eval(sess, eval_correct, feed_dict = {
-                    images_placeholder: train_image_batch.eval(session=sess),
-                    labels_placeholder: train_label_batch.eval(session=sess)
-                }, eval_data_size = TRAIN_SIZE)
+        do_eval(sess, eval_correct, TRAIN_SIZE, 
+                images_placeholder, labels_placeholder, 
+                train_image_batch, train_label_batch )
         # Evaluate against the validation set.
         print('Validation Data Eval:')
-        do_eval(sess, eval_correct, feed_dict = {
-                    images_placeholder: val_image_batch.eval(session=sess),
-                    labels_placeholder: val_label_batch.eval(session=sess)
-                }, eval_data_size = VAL_SIZE)
+        do_eval(sess, eval_correct, VAL_SIZE, 
+                images_placeholder, labels_placeholder, 
+                val_image_batch, val_label_batch )
         print('\n')
 
 
