@@ -42,6 +42,8 @@ def read_images_from_disk(input_queue):
     return example, label
 
 
+print("  ----   input_pipeline.py is imported -----")
+
 LABELS_FILE = './smallYearbookF.labels.txt'
 BATCH_SIZE = 100
 SHAPE= (171*186*3) # [height, width] This cannot read from file and needs to be provided
@@ -68,6 +70,7 @@ one_image = tf.reshape(one_image, [-1]) # [-1] means flatten the tensor
 image_batch, label_batch = tf.train.batch([one_image, one_label],
                                            batch_size=BATCH_SIZE,
                                            shapes=[SHAPE, ()])
+                                           
                                            
 if __name__ == "__main__":
     sess = tf.Session()

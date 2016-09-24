@@ -31,12 +31,13 @@ import math
 
 import tensorflow as tf
 
+from input_pipeline import *
+
 # The MNIST dataset has 10 classes, representing the digits 0 through 9.
-NUM_CLASSES = 10
+NUM_CLASSES = LABEL_CNT
 
 # The MNIST images are always 28x28 pixels.
-IMAGE_SIZE = 28
-IMAGE_PIXELS = IMAGE_SIZE * IMAGE_SIZE
+IMAGE_PIXELS = SHAPE
 
 
 def inference(images, hidden1_units, hidden2_units):
@@ -108,7 +109,7 @@ def training(loss, learning_rate):
   # Add a scalar summary for the snapshot loss.
   tf.scalar_summary(loss.op.name, loss)
   # Create the gradient descent optimizer with the given learning rate.
-  optimizer = tf.train.GradientDescentOptimizer(learning_rate)
+  optimizer = tf.train.AdamOptimizer()
   # Create a variable to track the global step.
   global_step = tf.Variable(0, name='global_step', trainable=False)
   # Use the optimizer to apply the gradients that minimize the loss

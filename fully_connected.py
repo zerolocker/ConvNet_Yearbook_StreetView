@@ -25,8 +25,8 @@ import time
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 
-from tensorflow.examples.tutorials.mnist import input_data
-from tensorflow.examples.tutorials.mnist import mnist
+from input_pipeline import *
+import mnist
 
 
 # Basic model parameters as external flags.
@@ -36,7 +36,7 @@ flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
 flags.DEFINE_integer('max_steps', 2000, 'Number of steps to run trainer.')
 flags.DEFINE_integer('hidden1', 128, 'Number of units in hidden layer 1.')
 flags.DEFINE_integer('hidden2', 32, 'Number of units in hidden layer 2.')
-flags.DEFINE_integer('batch_size', 100, 'Batch size.  '
+flags.DEFINE_integer('batch_size', BATCH_SIZE, 'Batch size.  '
                      'Must divide evenly into the dataset sizes.')
 flags.DEFINE_string('train_dir', 'data', 'Directory to put the training data.')
 flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
@@ -57,12 +57,12 @@ def placeholder_inputs(batch_size):
   # image and label tensors, except the first dimension is now batch_size
   # rather than the full size of the train or test data sets.
   images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
-                                                         mnist.IMAGE_PIXELS))
+                                                         SHAPE))
   labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
   return images_placeholder, labels_placeholder
 
 
-def fill_feed_dict(data_set, images_pl, labels_pl):
+def fill_feed_dict(images_pl, labels_pl):
   """Fills the feed_dict for training the given step.
   A feed_dict takes the form of:
   feed_dict = {
@@ -78,8 +78,7 @@ def fill_feed_dict(data_set, images_pl, labels_pl):
   """
   # Create the feed_dict for the placeholders filled with the next
   # `batch size` examples.
-  images_feed, labels_feed = data_set.next_batch(FLAGS.batch_size,
-                                                 FLAGS.fake_data)
+  images_feed, labels_feed = image_batch, label_batch
   feed_dict = {
       images_pl: images_feed,
       labels_pl: labels_feed,
@@ -116,16 +115,13 @@ def do_eval(sess,
 
 
 def run_training():
-  """Train MNIST for a number of steps."""
-  # Get the sets of images and labels for training, validation, and
-  # test on MNIST.
-  data_sets = input_data.read_data_sets(FLAGS.train_dir, FLAGS.fake_data)
+
 
   # Tell TensorFlow that the model will be built into the default Graph.
-  with tf.Graph().as_default():
+  #with tf.Graph().as_default():
+  if True:
     # Generate placeholders for the images and labels.
-    images_placeholder, labels_placeholder = placeholder_inputs(
-        FLAGS.batch_size)
+    images_placeholder, labels_placeholder = image_batch, label_batch
 
     # Build a Graph that computes predictions from the inference model.
     logits = mnist.inference(images_placeholder,
@@ -160,6 +156,7 @@ def run_training():
 
     # Run the Op to initialize the variables.
     sess.run(init)
+    tf.train.start_queue_runners(sess=sess)
 
     # Start the training loop.
     for step in xrange(FLAGS.max_steps):
@@ -167,7 +164,7 @@ def run_training():
 
       # Fill a feed dictionary with the actual set of images and labels
       # for this particular training step.
-      feed_dict = fill_feed_dict(data_sets.train,
+      feed_dict = fill_feed_dict(
                                  images_placeholder,
                                  labels_placeholder)
 
@@ -176,8 +173,7 @@ def run_training():
       # inspect the values of your Ops or variables, you may include them
       # in the list passed to sess.run() and the value tensors will be
       # returned in the tuple from the call.
-      _, loss_value = sess.run([train_op, loss],
-                               feed_dict=feed_dict)
+      _, loss_value = sess.run([train_op, loss])
 
       duration = time.time() - start_time
 
@@ -186,7 +182,7 @@ def run_training():
         # Print status to stdout.
         print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_value, duration))
         # Update the events file.
-        summary_str = sess.run(summary_op, feed_dict=feed_dict)
+        summary_str = sess.run(summary_op)
         summary_writer.add_summary(summary_str, step)
         summary_writer.flush()
 
@@ -194,27 +190,27 @@ def run_training():
       if (step + 1) % 1000 == 0 or (step + 1) == FLAGS.max_steps:
         checkpoint_file = os.path.join(FLAGS.train_dir, 'checkpoint')
         saver.save(sess, checkpoint_file, global_step=step)
-        # Evaluate against the training set.
-        print('Training Data Eval:')
-        do_eval(sess,
-                eval_correct,
-                images_placeholder,
-                labels_placeholder,
-                data_sets.train)
-        # Evaluate against the validation set.
-        print('Validation Data Eval:')
-        do_eval(sess,
-                eval_correct,
-                images_placeholder,
-                labels_placeholder,
-                data_sets.validation)
-        # Evaluate against the test set.
-        print('Test Data Eval:')
-        do_eval(sess,
-                eval_correct,
-                images_placeholder,
-                labels_placeholder,
-                data_sets.test)
+        # # Evaluate against the training set.
+        # print('Training Data Eval:')
+        # do_eval(sess,
+                # eval_correct,
+                # images_placeholder,
+                # labels_placeholder,
+                # data_sets.train)
+        # # Evaluate against the validation set.
+        # print('Validation Data Eval:')
+        # do_eval(sess,
+                # eval_correct,
+                # images_placeholder,
+                # labels_placeholder,
+                # data_sets.validation)
+        # # Evaluate against the test set.
+        # print('Test Data Eval:')
+        # do_eval(sess,
+                # eval_correct,
+                # images_placeholder,
+                # labels_placeholder,
+                # data_sets.test)
 
 
 def main(_):
