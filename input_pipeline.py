@@ -21,12 +21,8 @@ def read_labeled_image_list(image_list_file):
         filenames.append(filename)
         labels.append(int(label))
 
-    unique = list(set(labels))
-    i2label = {i:x for (i,x) in enumerate(unique)}
-    label2i = {x:i for (i,x) in enumerate(unique)}
-    # convert string-represented labels to integer representation
-    labels = [label2i[x] for x in labels]
-    return filenames, labels, i2label, label2i  
+    labels = [label2i(x) for x in labels]
+    return filenames, labels
     
 
 def read_images_from_disk(input_queue):
@@ -40,38 +36,53 @@ def read_images_from_disk(input_queue):
     file_contents = tf.read_file(input_queue[0])
     example = tf.image.decode_png(file_contents, channels=3)
     return example, label
+    
+    
+def main(LABEL_FILE, BATCH_SIZE, num_epochs): 
+    """
+        num_epochs: a number, or None. If it's a number, the queue will generate OutOfRange error after $num_epochs repetations
+    """
+    images, labels = read_labeled_image_list(LABEL_FILE)
 
+    # Makes an input queue
+    input_queue = tf.train.slice_input_producer([images, labels],
+                                                num_epochs=num_epochs,
+                                                shuffle=True)
+
+    one_image, one_label = read_images_from_disk(input_queue)
+    one_image = tf.image.convert_image_dtype(one_image, tf.float32)
+    one_image = tf.reshape(one_image, [-1]) # [-1] means flatten the tensor
+
+    # Optional Preprocessing or Data Augmentation
+    # tf.image implements most of the standard image augmentation
+    # one_image = preprocess_image(one_label)
+    # one_image = preprocess_label(one_label)
+
+    # Batching (input tensors backed by a queue; and then combine inputs into a batch)
+    image_batch, label_batch = tf.train.batch([one_image, one_label],
+                                               batch_size=BATCH_SIZE,
+                                               shapes=[SHAPE, ()])
+    return image_batch, label_batch, len(images)
+
+def printdebug(str):
+    print('  ----   DEBUG: '+str)
 
 print("  ----   input_pipeline.py is imported -----")
 
-LABELS_FILE = './smallYearbookF.labels.txt'
+# dataset-specific definitions
+LABEL_CNT = 109;
+LABELS_FILE_TRAIN = './smallYearbook/label.train.txt'
+LABELS_FILE_VAL = './smallYearbook/label.val.txt'
 BATCH_SIZE = 100
 SHAPE= (171*186*3) # [height, width] This cannot read from file and needs to be provided
-num_epochs = None # If set to a number, will generate OutOfRange error after $num_epochs repetation
-# Reads pfathes of images together with their labels
-images, labels, i2label, label2i = read_labeled_image_list(LABELS_FILE)
-LABEL_CNT = len(i2label)
+i2label = lambda i: i+1902;
+label2i = lambda i: i-1902;
 
-# Makes an input queue
-input_queue = tf.train.slice_input_producer([images, labels],
-                                            num_epochs=num_epochs,
-                                            shuffle=True)
+train_image_batch, train_label_batch, TRAIN_SIZE = main(LABELS_FILE_TRAIN, BATCH_SIZE, num_epochs=None)
+val_image_batch, val_label_batch, VAL_SIZE = main(LABELS_FILE_VAL, BATCH_SIZE, num_epochs=1)
+printdebug("TRAIN_SIZE: %d VAL_SIZE: %d BATCH_SIZE: %d " % (TRAIN_SIZE, VAL_SIZE, BATCH_SIZE))
 
-one_image, one_label = read_images_from_disk(input_queue)
-one_image = tf.image.convert_image_dtype(one_image, tf.float32)
-one_image = tf.reshape(one_image, [-1]) # [-1] means flatten the tensor
 
-# Optional Preprocessing or Data Augmentation
-# tf.image implements most of the standard image augmentation
-# one_image = preprocess_image(one_label)
-# one_image = preprocess_label(one_label)
-
-# Batching (input tensors backed by a queue; and then combine inputs into a batch)
-image_batch, label_batch = tf.train.batch([one_image, one_label],
-                                           batch_size=BATCH_SIZE,
-                                           shapes=[SHAPE, ()])
-                                           
-                                           
 if __name__ == "__main__":
     sess = tf.Session()
 
@@ -80,7 +91,17 @@ if __name__ == "__main__":
     sess.run(init)
     tf.train.start_queue_runners(sess=sess)
 
-    img, label = sess.run([one_image, one_label])
-    print(img)
-    print(label)
+    print ("  ----   Running unit tests for training set -----")
+    imgs, labels = sess.run([train_image_batch, train_label_batch])
+    assert(imgs.shape[0] == BATCH_SIZE)
+    assert(imgs[0].reshape(-1)[0] != imgs[1].reshape(-1)[0])
+    print(imgs[0])
+    print(labels[0])
+    imgs2, labels2 = sess.run([train_image_batch, train_label_batch])
+    assert(imgs2[0].reshape(-1)[0] != imgs[0].reshape(-1)[0]) # test if the batches change between two calls to sess.run()
+
+    print ("  ----   Running unit tests for validation set -----")
+    for i in range(VAL_SIZE / BATCH_SIZE): 
+        imgs, labels = sess.run([val_image_batch, val_label_batch])
+
 
