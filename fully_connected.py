@@ -62,30 +62,6 @@ def placeholder_inputs(batch_size):
   return images_placeholder, labels_placeholder
 
 
-def fill_feed_dict(images_pl, labels_pl):
-  """Fills the feed_dict for training the given step.
-  A feed_dict takes the form of:
-  feed_dict = {
-      <placeholder>: <tensor of values to be passed for placeholder>,
-      ....
-  }
-  Args:
-    data_set: The set of images and labels, from input_data.read_data_sets()
-    images_pl: The images placeholder, from placeholder_inputs().
-    labels_pl: The labels placeholder, from placeholder_inputs().
-  Returns:
-    feed_dict: The feed dictionary mapping from placeholders to values.
-  """
-  # Create the feed_dict for the placeholders filled with the next
-  # `batch size` examples.
-  images_feed, labels_feed = image_batch, label_batch
-  feed_dict = {
-      images_pl: images_feed,
-      labels_pl: labels_feed,
-  }
-  return feed_dict
-
-
 def do_eval(sess,
             eval_correct,
             images_placeholder,
@@ -121,7 +97,7 @@ def run_training():
   #with tf.Graph().as_default():
   if True:
     # Generate placeholders for the images and labels.
-    images_placeholder, labels_placeholder = image_batch, label_batch
+    images_placeholder, labels_placeholder = train_image_batch, train_label_batch
 
     # Build a Graph that computes predictions from the inference model.
     logits = mnist.inference(images_placeholder,
@@ -162,12 +138,6 @@ def run_training():
     for step in xrange(FLAGS.max_steps):
       start_time = time.time()
 
-      # Fill a feed dictionary with the actual set of images and labels
-      # for this particular training step.
-      feed_dict = fill_feed_dict(
-                                 images_placeholder,
-                                 labels_placeholder)
-
       # Run one step of the model.  The return values are the activations
       # from the `train_op` (which is discarded) and the `loss` Op.  To
       # inspect the values of your Ops or variables, you may include them
@@ -180,7 +150,7 @@ def run_training():
       # Write the summaries and print an overview fairly often.
       if step % 100 == 0:
         # Print status to stdout.
-        print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_value, duration))
+        print('Step %d: loss = %.2f (%.3f sec per step)' % (step, loss_value, duration))
         # Update the events file.
         summary_str = sess.run(summary_op)
         summary_writer.add_summary(summary_str, step)

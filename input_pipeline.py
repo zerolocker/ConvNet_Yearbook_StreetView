@@ -61,7 +61,7 @@ def main(LABEL_FILE, BATCH_SIZE, num_epochs):
     # Batching (input tensors backed by a queue; and then combine inputs into a batch)
     image_batch, label_batch = tf.train.batch([one_image, one_label],
                                                batch_size=BATCH_SIZE,
-                                               shapes=[SHAPE, ()])
+                                               shapes=[SHAPE, ()], capacity=3*BATCH_SIZE)
     return image_batch, label_batch, len(images)
 
 def printdebug(str):
