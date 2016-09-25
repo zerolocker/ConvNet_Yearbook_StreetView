@@ -44,10 +44,14 @@ for (label,samples) in samples_for_each_class.items():
     samples = np.array(samples) # convert to ndarray
     subset = samples[rndidx]
     for filename in subset[:TRAIN_CNT]:
-        shutil.copy(filename, SUBSET_OUTPUT_PATH_TRAIN + os.path.basename(filename))
+        dest = SUBSET_OUTPUT_PATH_TRAIN + os.path.basename(filename)
+        if not os.path.exists(dest):
+            shutil.copy(filename, dest)
         ftrain.write('%s %s\n' % (filename, label))
     for filename in subset[TRAIN_CNT : TRAIN_CNT+VAL_CNT]:
-        shutil.copy(filename, SUBSET_OUTPUT_PATH_VAL + os.path.basename(filename))
+        dest = SUBSET_OUTPUT_PATH_VAL + os.path.basename(filename)
+        if not os.path.exists(dest):
+            shutil.copy(filename, dest)
         fval.write('%s %s\n' % (filename, label))
 print("label count is :%d" % (len(samples_for_each_class)))
 

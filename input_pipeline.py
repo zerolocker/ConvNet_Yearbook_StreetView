@@ -72,6 +72,7 @@ print("  ----   input_pipeline.py is imported -----")
 # dataset-specific definitions
 LABEL_CNT = 109;
 LABELS_FILE_TRAIN = './smallYearbook/label.train.txt'
+# LABELS_FILE_TRAIN = './smallYearbookF.labels.txt'
 LABELS_FILE_VAL = './smallYearbook/label.val.txt'
 BATCH_SIZE = 100
 SHAPE= (171*186*3) # [height, width] This cannot read from file and needs to be provided
