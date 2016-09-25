@@ -1,4 +1,5 @@
 from input_pipeline import *
+import time
 
 
 
@@ -17,8 +18,15 @@ init = tf.initialize_all_variables()
 sess.run(init)
 tf.train.start_queue_runners(sess=sess)
 
+step = 0
+duration = 0.0
 while True:
-  # pass it in through the feed_dict
-  _, loss_val = sess.run([train_op, loss_mean])
-  print loss_val
-  
+    step += 1
+    
+    start_time = time.time()
+    _, loss_val = sess.run([train_op, loss_mean])
+    duration += time.time() - start_time
+    
+    if step % 100 == 0:
+        print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_val, duration))
+        duration = 0.0
