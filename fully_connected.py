@@ -74,7 +74,10 @@ def do_eval(sess, eval_correct, eval_data_size,
 
 
 def run_training():
-
+  # create input pipelines for training set and validation set
+  train_image_batch, train_label_batch, TRAIN_SIZE = create_input_pipeline(LABELS_FILE_TRAIN, BATCH_SIZE, num_epochs=None, produceVGGInput=False)
+  val_image_batch, val_label_batch, VAL_SIZE = create_input_pipeline(LABELS_FILE_VAL, BATCH_SIZE, num_epochs=None, produceVGGInput=False)
+  printdebug("TRAIN_SIZE: %d VAL_SIZE: %d BATCH_SIZE: %d " % (TRAIN_SIZE, VAL_SIZE, BATCH_SIZE))
 
   # Tell TensorFlow that the model will be built into the default Graph.
   #with tf.Graph().as_default():

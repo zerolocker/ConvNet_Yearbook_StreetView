@@ -2,6 +2,7 @@ from input_pipeline import *
 import time
 
 
+train_image_batch, train_label_batch, TRAIN_SIZE = create_input_pipeline(LABELS_FILE_TRAIN, BATCH_SIZE, num_epochs=None, produceVGGInput=False)
 
 # simple model
 w = tf.get_variable("w1", [SHAPE, LABEL_CNT])
