@@ -4,6 +4,7 @@
 
 import numpy as np
 import tensorflow as tf
+from IPython import embed
 
 def read_labeled_image_list(image_list_file):
     """Reads a .txt file containing pathes and labeles
@@ -51,8 +52,10 @@ def create_input_pipeline(LABEL_FILE, BATCH_SIZE, num_epochs, produceVGGInput):
 
     one_image, one_label = read_images_from_disk(input_queue)
     one_image = tf.image.convert_image_dtype(one_image, tf.float32)
+    local_shape = SHAPE
     if produceVGGInput:  # resize it to VGG input
         one_image = tf.image.resize_images(one_image, 224, 224)
+        local_shape = (224, 224, 3)
     else: 
         one_image = tf.reshape(one_image, [-1]) # [-1] means flatten the tensor
 
@@ -62,7 +65,7 @@ def create_input_pipeline(LABEL_FILE, BATCH_SIZE, num_epochs, produceVGGInput):
     # Batching (input tensors backed by a queue; and then combine inputs into a batch)
     image_batch, label_batch = tf.train.batch([one_image, one_label],
                                                batch_size=BATCH_SIZE,
-                                               shapes=[SHAPE, ()], capacity=3*BATCH_SIZE)
+                                               shapes=[local_shape, ()], capacity=3*BATCH_SIZE)
     return image_batch, label_batch, len(images)
     
 
