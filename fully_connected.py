@@ -34,11 +34,11 @@ from IPython import embed # used for interactive debugging
 # Basic model parameters as external flags.
 flags = tf.app.flags
 FLAGS = flags.FLAGS
-flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
+flags.DEFINE_float('learning_rate', 0.0001, 'Initial learning rate.')
 flags.DEFINE_integer('max_steps', 2000, 'Number of steps to run trainer.')
 flags.DEFINE_integer('hidden1', 128, 'Number of units in hidden layer 1.')
 flags.DEFINE_integer('hidden2', 32, 'Number of units in hidden layer 2.')
-flags.DEFINE_integer('batch_size', BATCH_SIZE, 'Batch size.  '
+flags.DEFINE_integer('batch_size', 100, 'Batch size.  '
                      'Must divide evenly into the dataset sizes.')
 flags.DEFINE_string('train_dir', 'data', 'Directory to put the training data.')
 flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
@@ -63,11 +63,13 @@ def do_eval(sess, eval_correct, eval_data_size,
   steps_per_epoch = eval_data_size // FLAGS.batch_size
   num_examples = steps_per_epoch * FLAGS.batch_size
   for step in xrange(steps_per_epoch):
+    # Never, ever run image_batch.eval() + label_batch.eval() separately
+    np_image_batch, np_label_batch = sess.run([image_batch, label_batch])
     true_count += sess.run(eval_correct, feed_dict={
-        images_placeholder: image_batch.eval(session=sess),
-        labels_placeholder: label_batch.eval(session=sess),
+        images_placeholder: np_image_batch,
+        labels_placeholder: np_label_batch,
     })
-  precision = true_count / num_examples
+  precision = float(true_count) / num_examples
   duration = time.time() - start_time
   print('  Num examples: %d  Num correct: %d  Precision @ 1: %0.04f Time: %.3f sec' %
         (num_examples, true_count, precision, duration))
@@ -75,15 +77,15 @@ def do_eval(sess, eval_correct, eval_data_size,
 
 def run_training():
   # create input pipelines for training set and validation set
-  train_image_batch, train_label_batch, TRAIN_SIZE = create_input_pipeline(LABELS_FILE_TRAIN, BATCH_SIZE, num_epochs=None, produceVGGInput=False)
-  val_image_batch, val_label_batch, VAL_SIZE = create_input_pipeline(LABELS_FILE_VAL, BATCH_SIZE, num_epochs=None, produceVGGInput=False)
-  printdebug("TRAIN_SIZE: %d VAL_SIZE: %d BATCH_SIZE: %d " % (TRAIN_SIZE, VAL_SIZE, BATCH_SIZE))
+  train_image_batch, train_label_batch, TRAIN_SIZE = create_input_pipeline(LABELS_FILE_TRAIN, FLAGS.batch_size, num_epochs=None, produceVGGInput=False)
+  val_image_batch, val_label_batch, VAL_SIZE = create_input_pipeline(LABELS_FILE_VAL, FLAGS.batch_size, num_epochs=None, produceVGGInput=False)
+  printdebug("TRAIN_SIZE: %d VAL_SIZE: %d BATCH_SIZE: %d " % (TRAIN_SIZE, VAL_SIZE, FLAGS.batch_size))
 
   # Tell TensorFlow that the model will be built into the default Graph.
   #with tf.Graph().as_default():
   if True:
     # Generate placeholders for the images and labels.
-    images_placeholder = tf.placeholder(tf.float32, shape=(FLAGS.batch_size,SHAPE))
+    images_placeholder = tf.placeholder(tf.float32, shape=(FLAGS.batch_size,NUM_PIXELS))
     labels_placeholder = tf.placeholder(tf.int32, shape=(FLAGS.batch_size))
 
     # Build a Graph that computes predictions from the inference model.
@@ -128,9 +130,11 @@ def run_training():
       start_time = time.time()
       # Fill a feed dictionary with the actual set of images and labels
       # for this particular training step.
+      # Never, ever run image_batch.eval() + label_batch.eval() separately
+      np_image_batch, np_label_batch = sess.run([train_image_batch, train_label_batch])
       train_feed_dict = {
-                images_placeholder: train_image_batch.eval(session=sess),
-                labels_placeholder: train_label_batch.eval(session=sess)
+            images_placeholder: np_image_batch,
+            labels_placeholder: np_label_batch
       }
                                  
       # Run one step of the model.  The return values are the activations

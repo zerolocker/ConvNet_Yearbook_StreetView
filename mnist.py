@@ -37,7 +37,7 @@ from input_pipeline import *
 NUM_CLASSES = LABEL_CNT
 
 # The MNIST images are always 28x28 pixels.
-IMAGE_PIXELS = SHAPE
+IMAGE_PIXELS = NUM_PIXELS # a hack, NUM_PIXELS is defined in input_pipeline.py and is actually the pixels of the yearbook data
 
 
 def inference(images, hidden1_units, hidden2_units):

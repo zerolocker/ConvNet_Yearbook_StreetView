@@ -10,9 +10,8 @@ def read_labeled_image_list(image_list_file):
     """Reads a .txt file containing pathes and labeles
     Args:
        image_list_file: a .txt file with one /path/to/image per line
-       label: optionally, if set label will be pasted after each line
     Returns:
-       List with all filenames in file image_list_file
+       a list of filenames, a list of labels. 
     """
     f = open(image_list_file, 'r')
     filenames = []
@@ -27,9 +26,10 @@ def read_labeled_image_list(image_list_file):
     
 
 def read_images_from_disk(input_queue):
-    """Consumes a single filename and label as a ' '-delimited string.
+    """ Reads a single filename from the disk, the filename is return by
+        a queue which stores image filesnames and their labels
     Args:
-      filename_and_label_tensor: A scalar string tensor.
+      input_queue: a queue returned by tf.train.slice_input_producer() 
     Returns:
       Two tensors: the decoded image, and the string label.
     """
@@ -39,9 +39,10 @@ def read_images_from_disk(input_queue):
     return example, label
     
     
-def create_input_pipeline(LABEL_FILE, BATCH_SIZE, num_epochs, produceVGGInput): 
+def create_input_pipeline(LABEL_FILE, batch_size, num_epochs, produceVGGInput): 
     """
-        num_epochs: a number, or None. If it's a number, the queue will generate OutOfRange error after $num_epochs repetations
+        num_epochs: a number, or None. The document of tf.train.slice_input_producer says:
+        "If it's a number, the queue will generate OutOfRange error after $num_epochs repetations"
     """
     images, labels = read_labeled_image_list(LABEL_FILE)
 
@@ -52,20 +53,21 @@ def create_input_pipeline(LABEL_FILE, BATCH_SIZE, num_epochs, produceVGGInput):
 
     one_image, one_label = read_images_from_disk(input_queue)
     one_image = tf.image.convert_image_dtype(one_image, tf.float32)
-    local_shape = SHAPE
+    shape = None
     if produceVGGInput:  # resize it to VGG input
         one_image = tf.image.resize_images(one_image, 224, 224)
-        local_shape = (224, 224, 3)
+        shape = (224, 224, 3)
     else: 
         one_image = tf.reshape(one_image, [-1]) # [-1] means flatten the tensor
+        shape = NUM_PIXELS
 
     # Optional Preprocessing or Data Augmentation
     # if you have time, look at https://www.tensorflow.org/versions/r0.10/how_tos/reading_data/index.html#preprocessing
 
     # Batching (input tensors backed by a queue; and then combine inputs into a batch)
     image_batch, label_batch = tf.train.batch([one_image, one_label],
-                                               batch_size=BATCH_SIZE,
-                                               shapes=[local_shape, ()], capacity=3*BATCH_SIZE)
+                                               batch_size=batch_size,
+                                               shapes=[shape, ()], capacity=3*batch_size)
     return image_batch, label_batch, len(images)
     
 
@@ -77,10 +79,8 @@ print("  ----   input_pipeline.py is imported -----")
 # dataset-specific definitions
 LABEL_CNT = 109;
 LABELS_FILE_TRAIN = './smallYearbook/label.train.txt'
-# LABELS_FILE_TRAIN = './smallYearbookF.labels.txt'
 LABELS_FILE_VAL = './smallYearbook/label.val.txt'
-BATCH_SIZE = 100
-SHAPE= (171*186*3) # [height, width] This cannot read from file and needs to be provided
+NUM_PIXELS = (171*186*3) # height * width * channel This cannot read from file and needs to be provided here
 i2label = lambda i: i+1905;
 label2i = lambda i: i-1905;
 
@@ -88,10 +88,12 @@ label2i = lambda i: i-1905;
 if __name__ == "__main__":
     sess = tf.Session()
     
+    batch_size=100
+    
     # create input pipelines for training set and validation set
-    train_image_batch, train_label_batch, TRAIN_SIZE = create_input_pipeline(LABELS_FILE_TRAIN, BATCH_SIZE, num_epochs=None, produceVGGInput=False)
-    val_image_batch, val_label_batch, VAL_SIZE = create_input_pipeline(LABELS_FILE_VAL, BATCH_SIZE, num_epochs=None, produceVGGInput=False)
-    printdebug("TRAIN_SIZE: %d VAL_SIZE: %d BATCH_SIZE: %d " % (TRAIN_SIZE, VAL_SIZE, BATCH_SIZE))
+    train_image_batch, train_label_batch, TRAIN_SIZE = create_input_pipeline(LABELS_FILE_TRAIN, batch_size, num_epochs=None, produceVGGInput=False)
+    val_image_batch, val_label_batch, VAL_SIZE = create_input_pipeline(LABELS_FILE_VAL, batch_size, num_epochs=None, produceVGGInput=False)
+    printdebug("TRAIN_SIZE: %d VAL_SIZE: %d BATCH_SIZE: %d " % (TRAIN_SIZE, VAL_SIZE, batch_size))
 
     # Required. 
     init = tf.initialize_all_variables()
@@ -100,7 +102,7 @@ if __name__ == "__main__":
 
     print ("  ----   Running unit tests for training set -----")
     imgs, labels = sess.run([train_image_batch, train_label_batch])
-    assert(imgs.shape[0] == BATCH_SIZE)
+    assert(imgs.shape[0] == batch_size)
     assert(imgs[0].reshape(-1)[0] != imgs[1].reshape(-1)[0])
     print(imgs[0])
     print(labels[0])
@@ -108,7 +110,8 @@ if __name__ == "__main__":
     assert(imgs2[0].reshape(-1)[0] != imgs[0].reshape(-1)[0]) # test if the batches change between two calls to sess.run()
 
     print ("  ----   Running unit tests for validation set -----")
-    for i in range(VAL_SIZE / BATCH_SIZE): 
+    for i in range(VAL_SIZE / batch_size): 
         imgs, labels = sess.run([val_image_batch, val_label_batch])
+    print ("  ----   All tests passed -----")
 
 
