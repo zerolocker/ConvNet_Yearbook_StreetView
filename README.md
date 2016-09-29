@@ -32,7 +32,7 @@ The [tensorflow-vgg](https://github.com/machrisaa/tensorflow-vgg) repo is contai
 5. choose whatever model you want to work on:
 
   **`ipython runvgg.py`**: train VGG-19.  
-  You may want to tune the parameter by running `python runvgg.py -learning_rate 1e-4 -eps 1e-8` to get good results. Note: if you want to specify parameters, you cannot use `ipython runvgg.py`, you have to use `python runvgg.py`. I don't know why this won't work for ipython...
+  You may want to tune the parameter by running `python runvgg.py -learning_rate 1e-4 -eps 1e-8` to get good results. Note: if you want to specify parameters, you cannot use `ipython runvgg.py`. You have to use `python runvgg.py`. I don't know why this won't work for ipython...
   
   **`ipython fully_connected.py`**: train a 2 hidden layer network.  
   
