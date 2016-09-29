@@ -29,11 +29,11 @@ val_image_batch, val_label_batch, VAL_SIZE = create_input_pipeline(LABELS_FILE_V
 printdebug("TRAIN_SIZE: %d VAL_SIZE: %d BATCH_SIZE: %d " % (TRAIN_SIZE, VAL_SIZE, BATCH_SIZE))
 
 # Generate placeholders for the images and labels.
-images_placeholder = tf.placeholder(tf.float32, shape=(BATCH_SIZE,SHAPE))
+images_placeholder = tf.placeholder(tf.float32, shape=(BATCH_SIZE,NUM_PIXELS))
 labels_placeholder = tf.placeholder(tf.int32, shape=(BATCH_SIZE))
 
 # simple model
-w = tf.get_variable("w1", [SHAPE, LABEL_CNT])
+w = tf.get_variable("w1", [NUM_PIXELS, LABEL_CNT])
 logits = tf.matmul(images_placeholder, w)
 loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, labels_placeholder)
 
