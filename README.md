@@ -27,7 +27,7 @@ The [tensorflow-vgg](https://github.com/machrisaa/tensorflow-vgg) repo is contai
   ```
   ipython input_pipeline.py
   ```
-  input_pipeline.py is a file used by almost all other files to create an "input pipeline" in the tensorflow graph. (Graph is a concept in tensorflow.https://www.tensorflow.org/versions/r0.10/api_docs/python/framework.html) 
+  input_pipeline.py is a file used by almost all other files to create an "input pipeline" in the tensorflow graph. (Graph is a concept in tensorflow. See https://www.tensorflow.org/versions/r0.10/api_docs/python/framework.html) 
   
 5. choose whatever model you want to work on:
 
