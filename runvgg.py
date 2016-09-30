@@ -44,7 +44,7 @@ def do_eval(sess, eval_correct, eval_data_size,
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_float('learning_rate', 1e-3, 'Initial learning rate.')
-flags.DEFINE_integer('max_steps', 8000, 'Number of steps to run trainer.')
+flags.DEFINE_integer('max_steps', 6000, 'Number of steps to run trainer.')
 flags.DEFINE_integer('batch_size', 30, 'Batch size.  ' # for VGG-19, batch_size can only be 30
                      'Must divide evenly into the dataset sizes.')
 flags.DEFINE_string('train_dir', 'data', 'Directory to put the training data.')
@@ -142,8 +142,8 @@ for step in xrange(FLAGS.max_steps):
 
     # Save a checkpoint and evaluate the model periodically.
     if (step + 1) % 1000 == 0 or (step + 1) == FLAGS.max_steps:
-        checkpoint_file = os.path.join(FLAGS.train_dir, 'checkpoint')
-        saver.save(sess, checkpoint_file, global_step=step)
+        # checkpoint_file = os.path.join(FLAGS.train_dir, 'checkpoint')
+        # saver.save(sess, checkpoint_file, global_step=step)
 
         if ((step + 1) % 2000 == 0):
           # Evaluate against the training set.
@@ -151,6 +151,7 @@ for step in xrange(FLAGS.max_steps):
           do_eval(sess, eval_correct, TRAIN_SIZE, 
                   images_placeholder, labels_placeholder, 
                   train_image_batch, train_label_batch )
+          vgg.save_npy(sess, './vggrepo/myVGG.lr.%.0e.eps.%.0e.step.%d.npy' % (FLAGS.learning_rate, FLAGS.eps, step))
         # Evaluate against the validation set.
         print('Validation Data Eval:')
         do_eval(sess, eval_correct, VAL_SIZE, 
