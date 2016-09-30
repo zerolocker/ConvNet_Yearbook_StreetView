@@ -1,6 +1,6 @@
 #!/bin/sh
 #SBATCH -J deeplearnproj1           # Job name
-#SBATCH -o experiment.out    # Specify stdout output file (%j expands to jobId)
+#SBATCH -o experiment_x.out    # Specify stdout output file (%j expands to jobId) # Change X to desired order
 #SBATCH -p gpu                           # Queue name
 #SBATCH -N 1                     # Total number of nodes requested (16 cores/node)
 #SBATCH -n 1                     # Total number of tasks
