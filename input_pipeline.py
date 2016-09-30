@@ -78,8 +78,8 @@ print("  ----   input_pipeline.py is imported -----")
 
 # dataset-specific definitions
 LABEL_CNT = 109;
-LABELS_FILE_TRAIN = './smallYearbook/label.train.txt'
-LABELS_FILE_VAL = './smallYearbook/label.val.txt'
+LABELS_FILE_TRAIN = './yearbook/all.label.train.txt'
+LABELS_FILE_VAL = './yearbook/all.label.val.txt'
 NUM_PIXELS = (171*186*3) # height * width * channel This cannot read from file and needs to be provided here
 i2label = lambda i: i+1905;
 label2i = lambda i: i-1905;

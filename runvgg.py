@@ -44,9 +44,7 @@ def do_eval(sess, eval_correct, eval_data_size,
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_float('learning_rate', 1e-3, 'Initial learning rate.')
-flags.DEFINE_integer('max_steps', 2000, 'Number of steps to run trainer.')
-flags.DEFINE_integer('hidden1', 128, 'Number of units in hidden layer 1.')
-flags.DEFINE_integer('hidden2', 32, 'Number of units in hidden layer 2.')
+flags.DEFINE_integer('max_steps', 8000, 'Number of steps to run trainer.')
 flags.DEFINE_integer('batch_size', 30, 'Batch size.  ' # for VGG-19, batch_size can only be 30
                      'Must divide evenly into the dataset sizes.')
 flags.DEFINE_string('train_dir', 'data', 'Directory to put the training data.')
@@ -109,6 +107,7 @@ tf.train.start_queue_runners(sess=sess)
 # Start the training loop.
 printdebug("Training starts!")
 duration = 0.0
+loss_cum = 0.0 # cumulative loss
 for step in xrange(FLAGS.max_steps):
     start_time = time.time()
     # Fill a feed dictionary with the actual set of images and labels
@@ -126,28 +125,32 @@ for step in xrange(FLAGS.max_steps):
     # in the list passed to sess.run() and the value tensors will be
     # returned in the tuple from the call.
     _, loss_value = sess.run([train_op, loss], feed_dict=train_feed_dict)
+    loss_cum += loss_value
     duration += time.time() - start_time
 
     # Write the summaries and print an overview fairly often.
     if step % 100 == 0:
+        loss_cum /= 100
         # Print status to stdout.
-        print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_value, duration))
+        print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_cum, duration))
         duration = 0.0
+        loss_cum = 0.0
         # Update the events file.
         summary_str = sess.run(summary_op, feed_dict=train_feed_dict)
         summary_writer.add_summary(summary_str, step)
         summary_writer.flush()
 
     # Save a checkpoint and evaluate the model periodically.
-    if (step + 1) % 400 == 0 or (step + 1) == FLAGS.max_steps:
+    if (step + 1) % 1000 == 0 or (step + 1) == FLAGS.max_steps:
         checkpoint_file = os.path.join(FLAGS.train_dir, 'checkpoint')
         saver.save(sess, checkpoint_file, global_step=step)
 
-        # Evaluate against the training set.
-        print('Training Data Eval:')
-        do_eval(sess, eval_correct, TRAIN_SIZE, 
-                images_placeholder, labels_placeholder, 
-                train_image_batch, train_label_batch )
+        if ((step + 1) % 2000 == 0):
+          # Evaluate against the training set.
+          print('Training Data Eval:')
+          do_eval(sess, eval_correct, TRAIN_SIZE, 
+                  images_placeholder, labels_placeholder, 
+                  train_image_batch, train_label_batch )
         # Evaluate against the validation set.
         print('Validation Data Eval:')
         do_eval(sess, eval_correct, VAL_SIZE, 
@@ -157,6 +160,6 @@ for step in xrange(FLAGS.max_steps):
 
 
 # vgg.save_npy() save the model
-vgg.save_npy(sess, './vggrepo/myVGGmodel.npy')
+vgg.save_npy(sess, './vggrepo/myVGG.lr.%.0e.eps.%.0e.npy' % (FLAGS.learning_rate, FLAGS.eps))
 
 
