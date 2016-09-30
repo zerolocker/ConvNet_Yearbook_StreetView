@@ -40,3 +40,10 @@ The [tensorflow-vgg](https://github.com/machrisaa/tensorflow-vgg) repo is contai
   i.e. a tiny fully connected network with no hidden layers.  
   `tinyfull.py` is designed to be as short and simple as possible so that I can test out new code / debugging a Tensorflow problem. So if you want to know the structure of the other files, I recommend reading the code in `tinyfull.py` first.
   
+#### Running on TACC
+```
+export lr=1e-6
+export eps=1e-3
+sbatch cmd.sh
+```
+And then, use `showq -u` to see your jobs. use `scancel 293409`(job id) to cancel your jobs. The output of your jobs will be at the filename specified in `cmd.sh`.
