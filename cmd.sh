@@ -8,4 +8,4 @@
 #SBATCH -A CS395T         # Specify allocation to charge against
 
 
-python runvgg.py --learning_rate $lr --eps $eps 2>&1 >out/lr.${lr}.eps.${eps}.out
+python runvgg.py --learning_rate $lr --eps $eps --dropout $dr

@@ -71,8 +71,12 @@ def create_input_pipeline(LABEL_FILE, batch_size, num_epochs, produceVGGInput):
     return image_batch, label_batch, len(images)
     
 
-def printdebug(str):
-    print('  ----   DEBUG: '+str)
+def printdebug(str, logfile=None):
+    if logfile is None:
+        print('  ----   DEBUG: '+str)
+    else:
+        logfile.write('  ----   DEBUG: '+str+'\n')
+        logfile.flush()
 
 print("  ----   input_pipeline.py is imported -----")
 

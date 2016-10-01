@@ -4,7 +4,7 @@ Simple tester for the vgg19_trainable
 
 import tensorflow as tf
 
-import vggrepo.vgg19_trainable as vgg19
+import vggrepo.vgg19_trainable_ours as vgg19
 import vggrepo.utils as utils
 from input_pipeline import *
 from IPython import embed;
@@ -36,35 +36,39 @@ def do_eval(sess, eval_correct, eval_data_size,
     })
   precision = float(true_count) / num_examples
   duration = time.time() - start_time
-  print('  Num examples: %d  Num correct: %d  Precision @ 1: %0.04f Time: %.3f sec' %
-        (num_examples, true_count, precision, duration))
+  printdebug('  Num examples: %d  Num correct: %d  Precision @ 1: %0.04f Time: %.3f sec' %
+        (num_examples, true_count, precision, duration), logfile)
 
         
 # Basic model parameters as external flags.
 flags = tf.app.flags
 FLAGS = flags.FLAGS
-flags.DEFINE_float('learning_rate', 1e-3, 'Initial learning rate.')
-flags.DEFINE_integer('max_steps', 6000, 'Number of steps to run trainer.')
+flags.DEFINE_float('learning_rate', 1e-4, 'Initial learning rate.')
+flags.DEFINE_integer('max_steps', 8000, 'Number of steps to run trainer.')
 flags.DEFINE_integer('batch_size', 30, 'Batch size.  ' # for VGG-19, batch_size can only be 30
                      'Must divide evenly into the dataset sizes.')
 flags.DEFINE_string('train_dir', 'data', 'Directory to put the training data.')
 flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                      'for unit testing.')
 flags.DEFINE_float('eps', 1e-8, 'for ADAM optimizer: a small constant for numerical stability.')
-printdebug('learning_rate: %.0e  eps: %.0e' % (FLAGS.learning_rate, FLAGS.eps))
+flags.DEFINE_float('dropout', 0.5, '')
+
+paramString = "lr.%.3e.eps.%.3e.dr.%.2f" % (FLAGS.learning_rate, FLAGS.eps, FLAGS.dropout)
+logfile = open("out/%s.txt" % paramString, 'w')
+printdebug('Parameters: ' + paramString, logfile)
 
 # create input pipelines for training set and validation set
 train_image_batch, train_label_batch, TRAIN_SIZE = create_input_pipeline(LABELS_FILE_TRAIN, FLAGS.batch_size, num_epochs=None, produceVGGInput=True)
 val_image_batch, val_label_batch, VAL_SIZE = create_input_pipeline(LABELS_FILE_VAL, FLAGS.batch_size, num_epochs=None, produceVGGInput=True)
 
-printdebug("TRAIN_SIZE: %d VAL_SIZE: %d BATCH_SIZE: %d" % (TRAIN_SIZE, VAL_SIZE, FLAGS.batch_size))
+printdebug("TRAIN_SIZE: %d VAL_SIZE: %d BATCH_SIZE: %d" % (TRAIN_SIZE, VAL_SIZE, FLAGS.batch_size), logfile)
 
 # Generate placeholders for the images and labels.
 images_placeholder = tf.placeholder(tf.float32, shape=(FLAGS.batch_size, 224, 224, 3)) # TODO fix input pipeline
 labels_placeholder = tf.placeholder(tf.int32, shape=(FLAGS.batch_size))
 train_mode = tf.placeholder(tf.bool)
 
-vgg = vgg19.Vgg19('./vggrepo/vgg19.npy')
+vgg = vgg19.Vgg19('./vggrepo/vgg19.npy', dropout=FLAGS.dropout)
 vgg.build(images_placeholder, train_mode)
 
 sess = tf.Session()
@@ -105,7 +109,7 @@ sess.run(tf.initialize_all_variables())
 tf.train.start_queue_runners(sess=sess)
 
 # Start the training loop.
-printdebug("Training starts!")
+printdebug("Training starts!", logfile)
 duration = 0.0
 loss_cum = 0.0 # cumulative loss
 for step in xrange(FLAGS.max_steps):
@@ -132,7 +136,7 @@ for step in xrange(FLAGS.max_steps):
     if step % 100 == 0:
         loss_cum /= 100
         # Print status to stdout.
-        print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_cum, duration))
+        printdebug('Step %d: loss = %.2f (%.3f sec)' % (step, loss_cum, duration), logfile)
         duration = 0.0
         loss_cum = 0.0
         # Update the events file.
@@ -147,20 +151,21 @@ for step in xrange(FLAGS.max_steps):
 
         if ((step + 1) % 2000 == 0):
           # Evaluate against the training set.
-          print('Training Data Eval:')
+          printdebug('Training Data Eval:', logfile)
           do_eval(sess, eval_correct, TRAIN_SIZE, 
                   images_placeholder, labels_placeholder, 
                   train_image_batch, train_label_batch )
-          vgg.save_npy(sess, './vggrepo/myVGG.lr.%.0e.eps.%.0e.step.%d.npy' % (FLAGS.learning_rate, FLAGS.eps, step))
+          vgg.save_npy(sess, './vggmodels/myVGG.%s.step.%d.npy' % (
+            paramString, step))
         # Evaluate against the validation set.
-        print('Validation Data Eval:')
+        printdebug('Validation Data Eval:', logfile)
         do_eval(sess, eval_correct, VAL_SIZE, 
                 images_placeholder, labels_placeholder, 
                 val_image_batch, val_label_batch )
-        print('\n')
+        printdebug('\n', logfile)
 
 
 # vgg.save_npy() save the model
-vgg.save_npy(sess, './vggrepo/myVGG.lr.%.0e.eps.%.0e.npy' % (FLAGS.learning_rate, FLAGS.eps))
+vgg.save_npy(sess, './vggrepo/myVGG.%s.npy' % (paramString))
 
 
