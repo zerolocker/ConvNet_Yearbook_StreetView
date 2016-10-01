@@ -1,0 +1,69 @@
+  ----   DEBUG: learning_rate: 1e-06  eps: 1e-08
+  ----   DEBUG: TRAIN_SIZE: 22840 VAL_SIZE: 5009 BATCH_SIZE: 30
+  ----   DEBUG: Training starts!
+  ----   DEBUG: Step 0: loss = 0.12 (15.423 sec)
+  ----   DEBUG: Step 100: loss = 7.45 (271.217 sec)
+  ----   DEBUG: Step 200: loss = 5.37 (269.830 sec)
+  ----   DEBUG: Step 300: loss = 5.00 (270.255 sec)
+  ----   DEBUG: Step 400: loss = 4.65 (268.358 sec)
+  ----   DEBUG: Step 500: loss = 4.39 (271.329 sec)
+  ----   DEBUG: Step 600: loss = 4.29 (270.769 sec)
+  ----   DEBUG: Step 700: loss = 4.09 (269.050 sec)
+  ----   DEBUG: Step 800: loss = 3.94 (269.830 sec)
+  ----   DEBUG: Step 900: loss = 3.86 (269.661 sec)
+  ----   DEBUG: Validation Data Eval:
+  ----   DEBUG:   Num examples: 4980  Num correct: 164  Precision @ 1: 0.0329 Time: 159.856 sec
+  ----   DEBUG: 
+
+  ----   DEBUG: Step 1000: loss = 3.69 (267.327 sec)
+  ----   DEBUG: Step 1100: loss = 3.65 (270.619 sec)
+  ----   DEBUG: Step 1200: loss = 3.55 (267.430 sec)
+  ----   DEBUG: Step 1300: loss = 3.47 (270.311 sec)
+  ----   DEBUG: Step 1400: loss = 3.43 (269.672 sec)
+  ----   DEBUG: Step 1500: loss = 3.38 (264.828 sec)
+  ----   DEBUG: Step 1600: loss = 3.24 (269.932 sec)
+  ----   DEBUG: Step 1700: loss = 3.20 (270.053 sec)
+  ----   DEBUG: Step 1800: loss = 3.12 (267.413 sec)
+  ----   DEBUG: Step 1900: loss = 3.10 (270.620 sec)
+  ----   DEBUG: Training Data Eval:
+  ----   DEBUG:   Num examples: 22830  Num correct: 6992  Precision @ 1: 0.3063 Time: 705.038 sec
+  ----   DEBUG: Validation Data Eval:
+  ----   DEBUG:   Num examples: 4980  Num correct: 203  Precision @ 1: 0.0408 Time: 152.465 sec
+  ----   DEBUG: 
+
+  ----   DEBUG: Step 2000: loss = 3.02 (269.053 sec)
+  ----   DEBUG: Step 2100: loss = 2.92 (269.709 sec)
+  ----   DEBUG: Step 2200: loss = 2.88 (270.088 sec)
+  ----   DEBUG: Step 2300: loss = 2.82 (267.115 sec)
+  ----   DEBUG: Step 2400: loss = 2.77 (269.528 sec)
+  ----   DEBUG: Step 2500: loss = 2.77 (269.468 sec)
+  ----   DEBUG: Step 2600: loss = 2.67 (267.604 sec)
+  ----   DEBUG: Step 2700: loss = 2.66 (269.779 sec)
+  ----   DEBUG: Step 2800: loss = 2.62 (268.629 sec)
+  ----   DEBUG: Step 2900: loss = 2.61 (268.906 sec)
+  ----   DEBUG: Validation Data Eval:
+  ----   DEBUG:   Num examples: 4980  Num correct: 156  Precision @ 1: 0.0313 Time: 152.771 sec
+  ----   DEBUG: 
+
+  ----   DEBUG: Step 3000: loss = 2.52 (269.000 sec)
+  ----   DEBUG: Step 3100: loss = 2.53 (267.511 sec)
+  ----   DEBUG: Step 3200: loss = 2.39 (269.594 sec)
+  ----   DEBUG: Step 3300: loss = 2.37 (267.910 sec)
+  ----   DEBUG: Step 3400: loss = 2.37 (269.046 sec)
+  ----   DEBUG: Step 3500: loss = 2.37 (269.317 sec)
+  ----   DEBUG: Step 3600: loss = 2.38 (267.034 sec)
+  ----   DEBUG: Step 3700: loss = 2.26 (269.987 sec)
+  ----   DEBUG: Step 3800: loss = 2.28 (269.880 sec)
+  ----   DEBUG: Step 3900: loss = 2.11 (267.361 sec)
+  ----   DEBUG: Training Data Eval:
+  ----   DEBUG:   Num examples: 22830  Num correct: 11405  Precision @ 1: 0.4996 Time: 709.587 sec
+  ----   DEBUG: Validation Data Eval:
+  ----   DEBUG:   Num examples: 4980  Num correct: 125  Precision @ 1: 0.0251 Time: 157.187 sec
+  ----   DEBUG: 
+
+  ----   DEBUG: Step 4000: loss = 2.07 (267.277 sec)
+  ----   DEBUG: Step 4100: loss = 2.07 (267.775 sec)
+  ----   DEBUG: Step 4200: loss = 2.02 (270.048 sec)
+  ----   DEBUG: Step 4300: loss = 2.07 (269.754 sec)
+  ----   DEBUG: Step 4400: loss = 2.05 (271.453 sec)
+  ----   DEBUG: Step 4500: loss = 2.00 (264.475 sec)

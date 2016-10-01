@@ -1,0 +1,6 @@
+  ----   DEBUG: learning_rate: 1e-05  eps: 1e-05
+  ----   DEBUG: TRAIN_SIZE: 22840 VAL_SIZE: 5009 BATCH_SIZE: 30
+  ----   DEBUG: Training starts!
+  ----   DEBUG: Step 0: loss = 0.12 (15.442 sec)
+  ----   DEBUG: Step 100: loss = 4.96 (276.124 sec)
+  ----   DEBUG: Step 200: loss = 3.79 (271.839 sec)
