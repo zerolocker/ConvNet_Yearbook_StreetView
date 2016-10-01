@@ -3,9 +3,9 @@ import random
 import matplotlib.pyplot as plt
 
 def neighbor(p):
-	p[0] = (p[0] + range_e*1.0/stepSize)%range_e
-	p[1] = (p[1] + range_a*1.0/stepSize)%range_a
-	p[2] = (p[2] + range_dropout*1.0/stepSize)%range_dropout
+	p[0] = (p[0] + range_e*2.0/stepSize)%range_e
+	p[1] = (p[1] + range_a*2.0/stepSize)%range_a
+	p[2] = (p[2] + range_dropout*2.0/stepSize)%range_dropout
 	return p
 
 def jump(p, Temperature):
@@ -57,7 +57,7 @@ range_dropout = 9
 T0 = 5000
 minloc = [0,0,0]
 minval = 100
-stepSize = 10
+stepSize = 30
 nodes = 3
 
 temperatureList = []
