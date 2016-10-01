@@ -1,0 +1,9 @@
+Simply `tar -xf` the data here.
+You should see a yearbook or france_streetview directory containing images right here.
+
+If you're using the command line you can get the dataset as follows
+$ wget http://www.cs.utexas.edu/~philkr/cs395t/france_streetview_trainval.tar.gz
+$ tar -xf france_streetview_trainval.tar.gz
+or
+$ wget http://www.cs.utexas.edu/~philkr/cs395t/yearbook_trainval.tar.gz
+$ tar -xf yearbook_trainval.tar.gz
