@@ -1,0 +1,137 @@
+wireless-10-146-211-255:CS395T-project1 yingyingwu$ python sa_3.py
+Input initial parameter for node 0:1
+Input initial parameter for node 0:2
+Input initial parameter for node 0:3
+Input corresponding accuracy score for node 0:0.03
+Input initial parameter for node 1:2
+Input initial parameter for node 1:3
+Input initial parameter for node 1:4
+Input corresponding accuracy score for node 1:0.46
+Input initial parameter for node 2:5
+Input initial parameter for node 2:2
+Input initial parameter for node 2:4
+Input corresponding accuracy score for node 2:0.81
+Input second initial parameter for node 0:5
+Input second initial parameter for node 0:3
+Input second initial parameter for node 0:4
+Input corresponding accuracy score for node 0:0.31
+Input second initial parameter for node 1:3
+Input second initial parameter for node 1:4
+Input second initial parameter for node 1:5
+Input corresponding accuracy score for node 1:0.46
+Input second initial parameter for node 2:6
+Input second initial parameter for node 2:3
+Input second initial parameter for node 2:5
+Input corresponding accuracy score for node 2:0.81
+Stage  0 0 nodes  0  with accuracy 0.69
+Stage  0 0 nodes  1  with accuracy 0.54
+Stage  0 0 nodes  2  with accuracy 0.19
+minimum value is:  0.19  now at  [6.0, 3.0, 5.0]
+current locations for each node:
+[[ 1.53333333  2.33333333  3.6       ]
+ [ 2.53333333  3.33333333  4.6       ]
+ [ 5.53333333  2.33333333  4.6       ]]
+Accuracy for parallel node 0 at (1.533333, 2.333333, 3.600000) when heat #0, anneal #0:0.16
+Accuracy for parallel node 1 at (2.533333, 3.333333, 4.600000) when heat #0, anneal #0:0.31
+Accuracy for parallel node 2 at (5.533333, 2.333333, 4.600000) when heat #0, anneal #0:0.66
+Stage  0 1 nodes  0  with accuracy 0.84
+Stage  0 1 nodes  1  with accuracy 0.69
+Stage  0 1 nodes  2  with accuracy 0.34
+minimum value is:  0.19  now at  [6.0, 3.0, 5.0]
+current locations for each node:
+[[ 2.06666667  2.66666667  4.2       ]
+ [ 3.06666667  3.66666667  5.2       ]
+ [ 6.06666667  2.66666667  5.2       ]]
+Accuracy for parallel node 0 at (2.066667, 2.666667, 4.200000) when heat #0, anneal #1:0.18
+Accuracy for parallel node 1 at (3.066667, 3.666667, 5.200000) when heat #0, anneal #1:0.33
+Accuracy for parallel node 2 at (6.066667, 2.666667, 5.200000) when heat #0, anneal #1:0.68
+Stage  0 2 nodes  0  with accuracy 0.82
+Stage  0 2 nodes  1  with accuracy 0.67
+Stage  0 2 nodes  2  with accuracy 0.32
+minimum value is:  0.19  now at  [6.0, 3.0, 5.0]
+current locations for each node:
+[[ 2.6  3.   4.8]
+ [ 3.6  4.   5.8]
+ [ 6.6  3.   5.8]]
+Accuracy for parallel node 0 at (2.600000, 3.000000, 4.800000) when heat #0, anneal #2:0.31
+Accuracy for parallel node 1 at (3.600000, 4.000000, 5.800000) when heat #0, anneal #2:0.46
+Accuracy for parallel node 2 at (6.600000, 3.000000, 5.800000) when heat #0, anneal #2:0.81
+Stage  0 3 nodes  0  with accuracy 0.69
+Stage  0 3 nodes  1  with accuracy 0.54
+Stage  0 3 nodes  2  with accuracy 0.19
+minimum value is:  0.19  now at  [6.0, 3.0, 5.0]
+current locations for each node:
+[[ 3.13333333  3.33333333  5.4       ]
+ [ 4.13333333  4.33333333  6.4       ]
+ [ 7.13333333  3.33333333  6.4       ]]
+Accuracy for parallel node 0 at (3.133333, 3.333333, 5.400000) when heat #0, anneal #3:0.31
+Accuracy for parallel node 1 at (4.133333, 4.333333, 6.400000) when heat #0, anneal #3:0.46
+Accuracy for parallel node 2 at (7.133333, 3.333333, 6.400000) when heat #0, anneal #3:0.81
+Stage  0 4 nodes  0  with accuracy 0.69
+Stage  0 4 nodes  1  with accuracy 0.54
+Stage  0 4 nodes  2  with accuracy 0.19
+minimum value is:  0.19  now at  [6.0, 3.0, 5.0]
+current locations for each node:
+[[ 3.66666667  3.66666667  6.        ]
+ [ 4.66666667  4.66666667  7.        ]
+ [ 7.66666667  3.66666667  7.        ]]
+Accuracy for parallel node 0 at (3.666667, 3.666667, 6.000000) when heat #0, anneal #4:0.46
+Accuracy for parallel node 1 at (4.666667, 4.666667, 7.000000) when heat #0, anneal #4:0.61
+Accuracy for parallel node 2 at (7.666667, 3.666667, 7.000000) when heat #0, anneal #4:0.96
+Stage  1 0 nodes  0  with accuracy 0.54
+Stage  1 0 nodes  1  with accuracy 0.39
+Stage  1 0 nodes  2  with accuracy 0.04
+minimum value is:  0.04  now at  [7.6666666666666661, 3.6666666666666674, 6.9999999999999982]
+current locations for each node:
+[[ 4.2  4.   6.6]
+ [ 5.2  5.   7.6]
+ [ 0.2  4.   7.6]]
+Accuracy for parallel node 0 at (4.200000, 4.000000, 6.600000) when heat #1, anneal #0:0.46
+Accuracy for parallel node 1 at (5.200000, 5.000000, 7.600000) when heat #1, anneal #0:0.62
+Accuracy for parallel node 2 at (0.200000, 4.000000, 7.600000) when heat #1, anneal #0:0
+Stage  1 1 nodes  0  with accuracy 0.54
+Stage  1 1 nodes  1  with accuracy 0.38
+Stage  1 1 nodes  2  with accuracy 1.0
+minimum value is:  0.04  now at  [7.6666666666666661, 3.6666666666666674, 6.9999999999999982]
+current locations for each node:
+[[ 4.73333333  4.33333333  7.2       ]
+ [ 5.73333333  0.33333333  8.2       ]
+ [ 0.73333333  4.33333333  8.2       ]]
+Accuracy for parallel node 0 at (4.733333, 4.333333, 7.200000) when heat #1, anneal #1:0.59
+Accuracy for parallel node 1 at (5.733333, 0.333333, 8.200000) when heat #1, anneal #1:0
+Accuracy for parallel node 2 at (0.733333, 4.333333, 8.200000) when heat #1, anneal #1:0
+Stage  1 2 nodes  0  with accuracy 0.41
+Stage  1 2 nodes  1  with accuracy 1.0
+Stage  1 2 nodes  2  with accuracy 1.0
+minimum value is:  0.04  now at  [7.6666666666666661, 3.6666666666666674, 6.9999999999999982]
+current locations for each node:
+[[ 5.26666667  4.66666667  7.8       ]
+ [ 6.26666667  0.66666667  8.8       ]
+ [ 1.26666667  4.66666667  8.8       ]]
+Accuracy for parallel node 0 at (5.266667, 4.666667, 7.800000) when heat #1, anneal #2:0.62
+Accuracy for parallel node 1 at (6.266667, 0.666667, 8.800000) when heat #1, anneal #2:0
+Accuracy for parallel node 2 at (1.266667, 4.666667, 8.800000) when heat #1, anneal #2:0.12
+Stage  1 3 nodes  0  with accuracy 0.38
+Stage  1 3 nodes  1  with accuracy 1.0
+Stage  1 3 nodes  2  with accuracy 0.88
+minimum value is:  0.04  now at  [7.6666666666666661, 3.6666666666666674, 6.9999999999999982]
+current locations for each node:
+[[ 5.8  0.   8.4]
+ [ 6.8  1.   0.4]
+ [ 1.8  0.   0.4]]
+Accuracy for parallel node 0 at (5.800000, 0.000000, 8.400000) when heat #1, anneal #3:0
+Accuracy for parallel node 1 at (6.800000, 1.000000, 0.400000) when heat #1, anneal #3:0
+Accuracy for parallel node 2 at (1.800000, 0.000000, 0.400000) when heat #1, anneal #3:0
+Stage  1 4 nodes  0  with accuracy 1.0
+Stage  1 4 nodes  1  with accuracy 1.0
+Stage  1 4 nodes  2  with accuracy 1.0
+minimum value is:  0.04  now at  [7.6666666666666661, 3.6666666666666674, 6.9999999999999982]
+current locations for each node:
+[[ 6.33333333  0.33333333  9.        ]
+ [ 7.33333333  1.33333333  1.        ]
+ [ 2.33333333  0.33333333  1.        ]]
+Accuracy for parallel node 0 at (6.333333, 0.333333, 9.000000) when heat #1, anneal #4:0
+Accuracy for parallel node 1 at (7.333333, 1.333333, 1.000000) when heat #1, anneal #4:0.75
+Accuracy for parallel node 2 at (2.333333, 0.333333, 1.000000) when heat #1, anneal #4:0
+11
+wireless-10-146-211-255:CS395T-project1 yingyingwu$ 
