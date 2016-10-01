@@ -68,7 +68,7 @@ while True:
     if step % 100 == 0:
         print('Step %d: loss = %.2f (%.3f sec)' % (step, loss_val, duration))
         duration = 0.0
-    if step % 100 == 0:
+    if step % 1000 == 0:
         # Evaluate against the training set.
         print('Training Data Eval:')
         do_eval(sess, eval_correct, TRAIN_SIZE, 
