@@ -37,3 +37,18 @@
 ==> out/lr.1e-06.eps.1e-08.txt <==
   ----   DEBUG: Validation Data Eval:
   ----   DEBUG:   Num examples: 4980  Num correct: 125  Precision @ 1: 0.0251 Time: 157.187 sec
+
+
+By observation of Euclidean distance, we group as:
+e lr 
+3 4 0.0163
+5 4 0.0301
+7 4 0.0227
+7 5 0.0283
+3 6 0.0339
+
+3 5 0.0281
+6 4 0.0211
+8 4 0.0490
+8 6 0.0251
+5 6 0.0281
