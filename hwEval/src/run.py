@@ -41,7 +41,7 @@ class Predictor:
       print "Pred: %d for file %s" % (self.year, image_path)
       
       if (self.cnt%100 == 0):
-        print('Number of tested images: '+str(self.cnt))
+        print('Number of predicted images: '+str(self.cnt))
       self.cnt += 1
       return self.year
 
