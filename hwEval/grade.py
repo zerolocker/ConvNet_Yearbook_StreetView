@@ -33,7 +33,7 @@ def evaluateYearbook(Predictor):
   predictor = Predictor()
 
   total_count = len(test_list)
-  l1_dist = 0
+  l1_dist = 0.0
   print( "Total testing data", total_count )
   for image_name in test_list:
     image_path = path.join(YEARBOOK_PATH, image_name)

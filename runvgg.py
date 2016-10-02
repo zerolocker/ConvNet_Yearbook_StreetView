@@ -52,9 +52,11 @@ flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                      'for unit testing.')
 flags.DEFINE_float('eps', 1e-8, 'for ADAM optimizer: a small constant for numerical stability.')
 flags.DEFINE_float('dropout', 0.5, '')
+flags.DEFINE_float('reg', 1e-5, '')
+flags.DEFINE_string('fname', 'u', '')
 
-paramString = "lr.%.3e.eps.%.3e.dr.%.2f" % (FLAGS.learning_rate, FLAGS.eps, FLAGS.dropout)
-logfile = open("out/%s.txt" % paramString, 'w')
+paramString = "lr.%.3e.eps.%.3e.dr.%.2f.reg.%.0e" % (FLAGS.learning_rate, FLAGS.eps, FLAGS.dropout, FLAGS.reg)
+logfile = open("out/%s.%s.txt" % (FLAGS.fname, paramString), 'a')
 printdebug('Parameters: ' + paramString, logfile)
 
 # create input pipelines for training set and validation set
@@ -68,7 +70,7 @@ images_placeholder = tf.placeholder(tf.float32, shape=(FLAGS.batch_size, 224, 22
 labels_placeholder = tf.placeholder(tf.int32, shape=(FLAGS.batch_size))
 train_mode = tf.placeholder(tf.bool)
 
-vgg = vgg19.Vgg19('./vggrepo/vgg19.npy', dropout=FLAGS.dropout)
+vgg = vgg19.Vgg19('./vggrepo/vgg19.npy', dropout=FLAGS.dropout, l2_reg=FLAGS.reg)
 vgg.build(images_placeholder, train_mode)
 
 sess = tf.Session()
@@ -78,8 +80,7 @@ logits = vgg.fc8
 labels = tf.to_int64(labels_placeholder)
 cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
     logits, labels, name='xentropy') # the logists are stored in vgg.fc8
-loss = tf.reduce_mean(cross_entropy, name='xentropy_mean')
-
+loss = tf.reduce_mean(cross_entropy, name='xentropy_mean') + vgg.reg_loss
 
 # define training (input: loss, learning_rate, eps):
 # Add a scalar summary for the snapshot loss.
