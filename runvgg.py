@@ -39,6 +39,27 @@ def do_eval(sess, eval_correct, eval_data_size,
   printdebug('  Num examples: %d  Num correct: %d  Precision @ 1: %0.04f Time: %.3f sec' %
         (num_examples, true_count, precision, duration), logfile)
 
+
+def do_eval_reg_hack(sess, l1_loss, eval_data_size, 
+            images_placeholder, labels_placeholder, 
+            image_batch, label_batch):
+  start_time = time.time()
+  l1_dist = 0.0
+  steps_per_epoch = eval_data_size // FLAGS.batch_size
+  num_examples = steps_per_epoch * FLAGS.batch_size
+  for step in xrange(steps_per_epoch):
+    # Never, ever run image_batch.eval() + label_batch.eval() separately
+    np_image_batch, np_label_batch = sess.run([image_batch, label_batch])
+    l1_dist += sess.run(l1_loss, feed_dict={
+        images_placeholder: np_image_batch,
+        labels_placeholder: np_label_batch,
+        train_mode: False
+    })
+  l1_dist /= steps_per_epoch
+  duration = time.time() - start_time
+  printdebug('  Num examples: %d  l1 Distance: %0.04f Time: %.3f sec' %
+        (num_examples, l1_dist, duration), logfile)
+
         
 # Basic model parameters as external flags.
 flags = tf.app.flags
@@ -52,10 +73,12 @@ flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                      'for unit testing.')
 flags.DEFINE_float('eps', 1e-8, 'for ADAM optimizer: a small constant for numerical stability.')
 flags.DEFINE_float('dropout', 0.5, '')
-flags.DEFINE_float('reg', 1e-5, '')
+flags.DEFINE_float('reg', 1e-3, '')
 flags.DEFINE_string('fname', 'u', '')
+flags.DEFINE_boolean('regress_hack',False, 'use a hack to implement regression for this homework')
 
 paramString = "lr.%.3e.eps.%.3e.dr.%.2f.reg.%.0e" % (FLAGS.learning_rate, FLAGS.eps, FLAGS.dropout, FLAGS.reg)
+if FLAGS.regress_hack:  paramString += '.REGRESS'
 logfile = open("out/%s.%s.txt" % (FLAGS.fname, paramString), 'a')
 printdebug('Parameters: ' + paramString, logfile)
 
@@ -77,10 +100,20 @@ sess = tf.Session()
 
 # define loss (input: logits, labels):
 logits = vgg.fc8
-labels = tf.to_int64(labels_placeholder)
-cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
-    logits, labels, name='xentropy') # the logists are stored in vgg.fc8
-loss = tf.reduce_mean(cross_entropy, name='xentropy_mean') + vgg.reg_loss
+if FLAGS.regress_hack: # regression hack to implement regression for this homework
+  logits = logits[:,0] # only the output of first neuron is used
+  labels = tf.to_float(labels_placeholder) - 67.0  # the mean of year-offset from 1905 in validation set
+  loss = tf.reduce_mean(tf.abs(logits-labels), name='l1dist_mean') + vgg.reg_loss
+else: # just normal classification loss
+  labels = tf.to_int64(labels_placeholder)
+  cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
+      logits, labels, name='xentropy') # the logists are stored in vgg.fc8
+  loss = tf.reduce_mean(cross_entropy, name='xentropy_mean') + vgg.reg_loss
+  # Add the Op to compare the logits to the labels during evaluation.
+  correct = tf.nn.in_top_k(logits, labels_placeholder, 1)
+  # Op that computes the number of true entries.
+  eval_correct = tf.reduce_sum(tf.cast(correct, tf.int32))
+
 
 # define training (input: loss, learning_rate, eps):
 # Add a scalar summary for the snapshot loss.
@@ -97,11 +130,6 @@ train_op = optimizer.minimize(loss, global_step=global_step)
 summary_op = tf.merge_all_summaries()
 # Instantiate a SummaryWriter to output summaries and the Graph.
 summary_writer = tf.train.SummaryWriter(FLAGS.train_dir, sess.graph)
-
-# Add the Op to compare the logits to the labels during evaluation.
-correct = tf.nn.in_top_k(logits, labels_placeholder, 1)
-# Op that computes the number of true entries.
-eval_correct = tf.reduce_sum(tf.cast(correct, tf.int32))
 
 # Create a saver for writing training checkpoints.
 saver = tf.train.Saver()
@@ -153,16 +181,26 @@ for step in xrange(FLAGS.max_steps):
         if ((step + 1) % 2000 == 0):
           # Evaluate against the training set.
           printdebug('Training Data Eval:', logfile)
-          do_eval(sess, eval_correct, TRAIN_SIZE, 
+          if FLAGS.regress_hack: 
+            do_eval_reg_hack(sess, loss, TRAIN_SIZE, 
+                  images_placeholder, labels_placeholder, 
+                  train_image_batch, train_label_batch )
+          else:
+            do_eval(sess, eval_correct, TRAIN_SIZE, 
                   images_placeholder, labels_placeholder, 
                   train_image_batch, train_label_batch )
           vgg.save_npy(sess, './vggmodels/myVGG.%s.step.%d.npy' % (
             paramString, step))
         # Evaluate against the validation set.
         printdebug('Validation Data Eval:', logfile)
-        do_eval(sess, eval_correct, VAL_SIZE, 
-                images_placeholder, labels_placeholder, 
-                val_image_batch, val_label_batch )
+        if FLAGS.regress_hack: 
+          do_eval_reg_hack(sess, loss, VAL_SIZE, 
+                  images_placeholder, labels_placeholder, 
+                  val_image_batch, val_label_batch )
+        else:
+          do_eval(sess, eval_correct, VAL_SIZE, 
+                  images_placeholder, labels_placeholder, 
+                  val_image_batch, val_label_batch )
         printdebug('\n', logfile)
 
 
